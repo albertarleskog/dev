@@ -1,0 +1,21 @@
+name: Container build & publish
+on:
+  push:
+    branches:
+      - main
+env:
+  VERSION: "0.1"
+  REPO: "ghcr.io/${{ github.repository_owner }}/dev"
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: docker build -t "${REPO}" .
+      - name: Tag version
+        run: docker tag ${REPO}:latest ${REPO}:${VERSION}
+      - name: Login
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+      - name: Push
+        run: docker push "${REPO}"
